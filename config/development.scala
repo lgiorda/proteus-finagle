@@ -4,7 +4,7 @@ import com.twitter.ostrich.admin.config._
 import edu.ciir.searchbird.config._
 
 // development mode.
-new SearchbirdServiceConfig {
+new ProteusServiceConfig {
 
   // Add your own config here
   shards = Seq(
@@ -15,7 +15,7 @@ new SearchbirdServiceConfig {
   thriftPort = 9999
 
   // Ostrich http admin port.  Curl this for stats, etc
-  //admin.httpPort = 9900
+  admin.httpPort = 9900
 
   // End user configuration
 

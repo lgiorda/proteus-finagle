@@ -9,6 +9,11 @@ import com.twitter.logging.Logger
 import com.twitter.finagle.builder.ClientBuilder
 import com.twitter.finagle.thrift.ThriftClientFramedCodec
 import edu.ciir.proteus.thrift._
+import java.util.concurrent.Executors
+import edu.ciir.proteus.thrift._
+import scala.collection.mutable
+import com.twitter.util._
+import config._
 
 object Constants {
   val contents_map: Map[ProteusType, Seq[ProteusType]] = Map(ProteusType.Collection -> List(ProteusType.Page), ProteusType.Organization -> List(), ProteusType.Location -> List(), ProteusType.Video -> List(ProteusType.Person, ProteusType.Location, ProteusType.Organization), ProteusType.Page -> List(ProteusType.Picture, ProteusType.Video, ProteusType.Audio), ProteusType.Person -> List(), ProteusType.Picture -> List(ProteusType.Person, ProteusType.Location, ProteusType.Organization), ProteusType.Audio -> List(ProteusType.Person, ProteusType.Location, ProteusType.Organization))
@@ -31,16 +36,19 @@ trait ProteusServiceMine {
   def getSupportedTypes: Future[List[ProteusType]]
   def getDynamicTransforms: Future[List[DynamicTransformID]]
   def supportsType(ptype: ProteusType): Future[Boolean]
-  def supportsDynTranform(dtID: DynamicTransformID): Future[Boolean]
+  def supportsDynTransform(dtID: DynamicTransformID): Future[Boolean]
+  
   def runSearch(s: SearchRequest): Future[SearchResponse]
+
   def runContainerTransform(id: AccessIdentifier,
                             from_type: ProteusType,
                             to_type: ProteusType,
                             params: SearchParameters): Future[SearchResponse]
   def runContentsTransform(id: AccessIdentifier,
-                           from_type: ProteusType,
-                           to_type: ProteusType,
-                           params: SearchParameters): Future[SearchResponse]
+                            from_type: ProteusType,
+                            to_type: ProteusType,
+                            params: SearchParameters): Future[SearchResponse]
+
   def runOverlapsTransform(id: AccessIdentifier,
                            from_type: ProteusType,
                            params: SearchParameters): Future[SearchResponse]
@@ -77,15 +85,33 @@ trait ProteusServiceMine {
   def lookupOrganization(accessID: AccessIdentifier): Future[Organization]
 
 }
-/*
-abstract class Library extends ProteusService {
 
+/**
+ * Trait for generating pseudo random strings and keys.
+ */
+trait RandomDataGenerator {
+    val keyChars: String = (('a' to 'z') ++ ('A' to 'Z') ++ ('0' to '9')).mkString("")
+    /**
+     * Generates a random alpha-numeric string of fixed length (8).
+     * Granted, this is a BAD way to do it, because it doesn't guarantee true randomness.
+     */
+    def genKey(length: Int = 8): String = (1 to length).map(x => keyChars.charAt(util.Random.nextInt(keyChars.length))).mkString
 }
 
-abstract class Librarian extends ProteusService {
-
+class Librarian(config: ProteusServiceConfig) extends LibrarianService.ThriftServer
+					with LibrarianConnectionManager
+					with LibrarianLookupManager
+					with LibrarianQueryHandler {
+  var serverName = "Proteus"
+  val thriftPort = config.thriftPort
+  
 }
-*/
+
+class Library(config: ProteusServiceConfig) extends ProteusNodesService.ThriftServer {
+  var serverName = "Proteus-Library"
+  val thriftPort = config.thriftPort  
+}
+
 
 trait RandomEndPoint extends ProteusServiceMine with RandomDataGenerator {
 
@@ -325,22 +351,5 @@ trait RandomEndPoint extends ProteusServiceMine with RandomDataGenerator {
   */
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
