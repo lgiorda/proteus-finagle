@@ -107,7 +107,8 @@ class Librarian(config: ProteusServiceConfig) extends LibrarianService.ThriftSer
   
 }
 
-class Library(config: ProteusServiceConfig) extends ProteusNodesService.ThriftServer {
+class Library(config: ProteusServiceConfig) extends ProteusNodesService.ThriftServer
+					with RandomEndPoint {
   var serverName = "Proteus-Library"
   val thriftPort = config.thriftPort  
 }
