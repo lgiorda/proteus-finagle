@@ -1,0 +1,5 @@
+This is a barebones adoption of the Searchbird example by Twitter. 
+
+Things you'll need:
+-sbt 0.7.x
+  Get sbt 0.7.x and create a script that is identical to your sbt 0.10.x script (named 'sbt7' or something) 
