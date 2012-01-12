@@ -8,11 +8,12 @@ import com.twitter.finagle.builder.ClientBuilder
 import com.twitter.finagle.thrift.ThriftClientFramedCodec
 import edu.ciir.proteus.thrift._
 
+import java.net.InetSocketAddress
 class ProteusClient (libHostName: String, libPort: Int) {
   import Constants._
 	val transport = ClientBuilder()
-	    .name("remoteIndex")
-	    .hosts(libHostName + ":" + libPort)
+	    .name("Proteus")
+        .hosts(Seq(new InetSocketAddress(libHostName, libPort)))
 	    .codec(ThriftClientFramedCodec())
 	    .hostConnectionLimit(1)
 	    .timeout(5000.milliseconds)
@@ -193,7 +194,7 @@ class ProteusClient (libHostName: String, libPort: Int) {
 	 */
 	def lookupCollection(result: SearchResult) : Future[Collection] = {
 		// Sanity checking first
-		if (result.proteusType != ProteusType.Collection)
+		if (result.proteusType.get != ProteusType.Collection)
 			throw new IllegalArgumentException("Mismatched type with lookup method")
 	    return client.lookupCollection(result.id)
 	}
@@ -203,7 +204,7 @@ class ProteusClient (libHostName: String, libPort: Int) {
 	 */
 	def lookupPage(result: SearchResult) : Future[Page] = {
 		// Sanity checking first
-		if (result.proteusType != ProteusType.Page)
+		if (result.proteusType.get != ProteusType.Page)
 			throw new IllegalArgumentException("Mismatched type with lookup method")
 	  
 		return client.lookupPage(result.id)
@@ -214,7 +215,7 @@ class ProteusClient (libHostName: String, libPort: Int) {
 	 */
 	def lookupPicture(result: SearchResult) : Future[Picture] = {
 		// Sanity checking first
-		if (result.proteusType != ProteusType.Picture)
+		if (result.proteusType.get != ProteusType.Picture)
 			throw new IllegalArgumentException("Mismatched type with lookup method")
 	  
 		return client.lookupPicture(result.id)
@@ -225,7 +226,7 @@ class ProteusClient (libHostName: String, libPort: Int) {
 	 */
 	def lookupVideo(result: SearchResult) : Future[Video] = {
 		// Sanity checking first
-		if (result.proteusType != ProteusType.Video)
+		if (result.proteusType.get != ProteusType.Video)
 			throw new IllegalArgumentException("Mismatched type with lookup method")
 	  
 		return client.lookupVideo(result.id)
@@ -236,7 +237,7 @@ class ProteusClient (libHostName: String, libPort: Int) {
 	 */
 	def lookupAudio(result: SearchResult) : Future[Audio] = {
 		// Sanity checking first
-		if (result.proteusType != ProteusType.Audio)
+		if (result.proteusType.get != ProteusType.Audio)
 			throw new IllegalArgumentException("Mismatched type with lookup method")
 	  
 		return client.lookupAudio(result.id)
@@ -247,7 +248,7 @@ class ProteusClient (libHostName: String, libPort: Int) {
 	 */
 	def lookupPerson(result: SearchResult) : Future[Person] = {
 		// Sanity checking first
-		if (result.proteusType != ProteusType.Person)
+		if (result.proteusType.get != ProteusType.Person)
 			throw new IllegalArgumentException("Mismatched type with lookup method")
 	  
 		return client.lookupPerson(result.id)
@@ -259,7 +260,7 @@ class ProteusClient (libHostName: String, libPort: Int) {
 	def lookupLocation(result: SearchResult) : Future[Location] = {
 	    println("Looking up location..")
 		// Sanity checking first
-		if (result.proteusType != ProteusType.Location)
+		if (result.proteusType.get != ProteusType.Location)
 			throw new IllegalArgumentException("Mismatched type with lookup method")
 	  
 		return client.lookupLocation(result.id)
@@ -270,7 +271,7 @@ class ProteusClient (libHostName: String, libPort: Int) {
 	 */
 	def lookupOrganization(result: SearchResult) : Future[Organization] = {
 		// Sanity checking first
-		if (result.proteusType != ProteusType.Organization)
+		if (result.proteusType.get != ProteusType.Organization)
 			throw new IllegalArgumentException("Mismatched type with lookup method")
 	  
 		return client.lookupOrganization(result.id)

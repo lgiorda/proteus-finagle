@@ -30,6 +30,6 @@ class ProteusProject(info: ProjectInfo) extends StandardServiceProject(info)
   /**
    * We can change this over to ProteusMain once we've written the class...
    */
-  override def mainClass = Some("edu.ciir.searchbird.SearchbirdMain")
+  override def mainClass = Some("edu.ciir.proteus.ProteusMain")
 
 }

@@ -1,21 +1,23 @@
 import com.twitter.conversions.time._
 import com.twitter.logging.config._
 import com.twitter.ostrich.admin.config._
-import edu.ciir.searchbird.config._
+import edu.ciir.proteus.config._
 
 // development mode.
 new ProteusServiceConfig {
 
   // Add your own config here
   shards = Seq(
-    "localhost:9000",
-    "localhost:9001",
-    "localhost:9002")
+    "localhost:9010",
+    "localhost:9011",
+    "localhost:9012")
+  manager = "localhost:8999"
+    
   // Where your service will be exposed.
   thriftPort = 9999
 
   // Ostrich http admin port.  Curl this for stats, etc
-  admin.httpPort = 9900
+  //admin.httpPort = 9900
 
   // End user configuration
 

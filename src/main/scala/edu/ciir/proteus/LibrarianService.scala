@@ -4,6 +4,7 @@ package edu.ciir.proteus
 import scala.collection.mutable
 import org.apache.thrift.protocol.TBinaryProtocol
 
+import java.net.InetSocketAddress
 import com.twitter.util._
 import com.twitter.conversions.time._
 import com.twitter.logging.Logger
@@ -22,6 +23,7 @@ trait LibrarianQueryHandler {
   
   def runSearch(s: SearchRequest): Future[SearchResponse] = {
     val members = typeSupport(s.types.toList).map(m => libraries(m).runSearch(s) map {sresp => sresp.results })
+    println("Searching... " )
     return Future.collect(members) map { allresults => new SearchResponse(allresults.flatten.toList) }
   }
  
@@ -126,7 +128,7 @@ trait LibrarianConnectionManager extends RandomDataGenerator {
         if (libraries.contains(reqKey)) {
           val collision_conn = libraries(reqKey)
           if (collision_conn.hostname == c.hostname && 
-              collision_conn.port == c.port.get && 
+              collision_conn.port == c.port && 
               collision_conn.groupId == c.groupId.get)
             return reqKey
           else
@@ -136,6 +138,7 @@ trait LibrarianConnectionManager extends RandomDataGenerator {
     }
     
   	def connectLibrary(details: ConnectLibrary): Future[LibraryConnected] = {
+  	  println("Received connection...")
   		val id = libKeyID(details)
   		if (id == "") return Future { new LibraryConnected(details.requestedKey, Some("Requested ID key is already in use by another host.")) }
   		
@@ -147,7 +150,7 @@ trait LibrarianConnectionManager extends RandomDataGenerator {
 
   		val new_details = new ConnectLibrary(details.hostname, details.port, Some(gID), Some(id), details.supportedTypes, details.dynamicTransforms)
   		libraries += id -> new RemoteLibrary(new_details)
-  		
+  		println("Sending response... " + id + " " + details.hostname + ":" + details.port)
   		return Future { new LibraryConnected(resourceId = Option(id)) }
     }
   	
@@ -170,15 +173,15 @@ trait LibrarianConnectionManager extends RandomDataGenerator {
   
 }
 
-class RemoteLibrary(details: ConnectLibrary) extends ProteusService {
+class RemoteLibrary(details: ConnectLibrary) {
   val hostname = details.hostname
-  val port = details.port.get
+  val port = details.port
   val groupId = details.groupId.get
   val id = details.requestedKey.get
   
   val transport = ClientBuilder()
-    .name("remoteIndex")
-    .hosts(details.hostname + ":" + details.port)
+    .name("Proteus-Library")
+    .hosts(Seq(new InetSocketAddress(details.hostname, details.port.toInt)))
     .codec(ThriftClientFramedCodec())
     .hostConnectionLimit(1)
     .timeout(500.milliseconds)
@@ -187,9 +190,9 @@ class RemoteLibrary(details: ConnectLibrary) extends ProteusService {
   val client = new ProteusNodesService.FinagledClient(transport, new TBinaryProtocol.Factory)
 
   def getSupportedTypes: Future[List[ProteusType]] = Future { details.supportedTypes.toList }
-  def getDynamicTransforms: Future[List[DynamicTransformID]] = Future { details.dynamicTransforms.toList }
+  def getDynamicTransforms: Future[List[DynamicTransformID]] = Future { details.dynamicTransforms.getOrElse(List()).toList }
   def supportsType(ptype: ProteusType): Future[Boolean] = Future { details.supportedTypes.contains(ptype) }
-  def supportsDynTransform(dtID: DynamicTransformID): Future[Boolean] = Future { details.dynamicTransforms.contains(dtID) }
+  def supportsDynTransform(dtID: DynamicTransformID): Future[Boolean] = Future { details.dynamicTransforms.getOrElse(List()).contains(dtID) }
   
   def runSearch(s: SearchRequest): Future[SearchResponse] = client.runSearch(s)
   def runContainerTransform(id: AccessIdentifier,

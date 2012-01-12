@@ -153,7 +153,7 @@ struct Page {
 
 	// Page specific fields
 	10: optional string full_text; 	// The full text of the containing page
-	11:	list<string> creators; 	// The creators of this resource
+	11:	optional list<string> creators; 	// The creators of this resource
 	12: optional i32 page_number; // Where in the collection this page is located
 }
 
@@ -180,7 +180,7 @@ struct Picture {
 	// Picture specific fields
 	10: optional string caption;
 	11: optional Coordinates coordinates;
-	12: list<string> creators; 					// The creators of this resource
+	12: optional list<string> creators; 					// The creators of this resource
 }
 
 struct Video {
@@ -198,8 +198,8 @@ struct Video {
 	// Video specific fields
 	10: optional string caption;
 	11: optional Coordinates coordinates;
-	12: list<string> creators; 					// The creators of this resource
-	13: i32 length;								// Length of the clip
+	12: optional list<string> creators; 					// The creators of this resource
+	13: optional i32 length;								// Length of the clip
 }
 
 struct Audio {
@@ -217,8 +217,8 @@ struct Audio {
 	// Video specific fields
 	10: optional string caption;
 	11: optional Coordinates coordinates;
-	12: list<string> creators; 					// The creators of this resource
-	13: i32 length;								// Length of the clip
+	12: optional list<string> creators; 					// The creators of this resource
+	13: optional i32 length;								// Length of the clip
 }
 
 
@@ -234,7 +234,7 @@ struct Person {
 	
 	// Person specific fields
 	8: optional string full_name; 			// Full name of this person
-	9: list<string> alternate_names; 	// List of alternate names, nick names, and aliases
+	9: optional list<string> alternate_names; 	// List of alternate names, nick names, and aliases
 	10: optional string wiki_link; 			// Wikipedia link for this person
 	11: optional i64 birth_date; 		// Date of birth
 	12: optional i64 death_date; 		// Date of death
@@ -251,7 +251,7 @@ struct Location {
 	
 	// Location specific fields
 	8: optional string full_name;
-	9: list<string> alternate_names;
+	9: optional list<string> alternate_names;
 	10: optional string wiki_link;
 	11: optional double longitude; 		// Longitude of this location
 	12: optional double latitude; 			// Latitude of this location
@@ -267,7 +267,7 @@ struct Organization {
 	
 	// Organization specific fields
 	8: optional string full_name;
-	9: list<string> alternate_names;
+	9: optional list<string> alternate_names;
 	10: optional string wiki_link;
 }
 
@@ -285,12 +285,12 @@ struct DynamicTransformID {
 // No immediate response is expected, but once the library is added the first struct sent will be LibraryConnected
 struct ConnectLibrary {
 	1: required string hostname;
-	2: optional i32 port;
+	2: required i32 port;
 	3: optional string group_id;
 	4: optional string requested_key;
 	
 	5: list<ProteusType> supported_types;
-	6: list<DynamicTransformID> dynamic_transforms;
+	6: optional list<DynamicTransformID> dynamic_transforms;
 }
 
 struct LibraryConnected {
@@ -319,8 +319,8 @@ service SearchbirdService {
  */ 
 service ProteusAPI {
 	
-	list<ProteusType> containerFor(1: ProteusType ptype)
-	list<ProteusType> convertTypes(1: list<ProteusType> types)
+//	list<ProteusType> containerFor(1: ProteusType ptype)
+//	list<ProteusType> convertTypes(1: list<ProteusType> types)
 
 }
 
@@ -339,9 +339,9 @@ service ProteusAPI {
 service ProteusNodesService extends ProteusAPI {
 
 	list<ProteusType> getSupportedTypes()
-	list<DynamicTransformID> getDynamicTranforms()
+	list<DynamicTransformID> getDynamicTransforms()
 	bool supportsType(1: ProteusType ptype)
-	bool supportsDynTranform(1: DynamicTransformID dtID);
+	bool supportsDynTransform(1: DynamicTransformID dtID);
 	
 	// Search the libraries for some query
 	SearchResponse runSearch(1: SearchRequest s);
@@ -384,16 +384,15 @@ service ProteusNodesService extends ProteusAPI {
 	Person lookupPerson(1: AccessIdentifier accessID);
 	Location lookupLocation(1: AccessIdentifier accessID);
 	Organization lookupOrganization(1: AccessIdentifier accessID);
+	
+    // Handle connecting and disconnecting of end points (libraries)
+	LibraryConnected connectLibrary(1: ConnectLibrary details);
 
 }
 
+//service LibrarianService extends ProteusNodesService {
 
-
-
-
-
-
-
+//}
 
 
 
