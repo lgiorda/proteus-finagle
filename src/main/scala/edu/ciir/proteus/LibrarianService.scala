@@ -12,7 +12,7 @@ import com.twitter.finagle.builder.ClientBuilder
 import com.twitter.finagle.thrift.ThriftClientFramedCodec
 import edu.ciir.proteus.thrift._
 
-trait LibrarianQueryHandler {
+trait LibrarianQueryHandler  {
   def typeSupport(ptypes: List[ProteusType], groupId: String = "") : List[String]
   def dynamicSupport(dynID: DynamicTransformID, groupId: String = "") : List[String]
   def getGroupId(accessID: AccessIdentifier) : String
@@ -173,11 +173,29 @@ trait LibrarianConnectionManager extends RandomDataGenerator {
   
 }
 
+
+/** this seems a little weird:
+ * 		in the searchbird example, the RemoteIndex operates over a number of remotes
+ * 		shards are all created and then passed into the RemoteIndex object as a Seq
+ * 		this way, the RemoteIndex in created only once and operates over that Seq 
+ * 		of shards
+ * 
+ * 		here, we are passing in the details of a single remote index and creating 
+ * 		one new RemoteLibrary for each remote index that wishes to connect. So for
+ * 		each remote index that connects we will have a RemoteLibrary that operates 
+ * 		only over that one remote index. 
+ * 
+ * 		I guess since each remote library will have different types, then this pattern
+ * 		is the only thing that makes sense, since we're not blindly querying every backend.
+ * 		
+ */
 class RemoteLibrary(details: ConnectLibrary) {
   val hostname = details.hostname
   val port = details.port
   val groupId = details.groupId.get
   val id = details.requestedKey.get
+  
+  val test = ClientBuilder().name("something")
   
   val transport = ClientBuilder()
     .name("Proteus-Library")

@@ -31,9 +31,10 @@ class ProteusServiceConfig extends ServerConfig[ProteusNodesService.ThriftServer
 
       case None =>
         println("In a librarian")
-    //    require(!shards.isEmpty)
+        println("manager variable: " + manager)
+        //require(!shards.isEmpty)
         //val remotes = shards map { new RemoteIndex(_) }
-//        new CompositeNode(remotes)
+        //new CompositeNode(remotes)
         val Array(_, port) = manager.split(":")
         thriftPort = port.toInt
         new Librarian(this)

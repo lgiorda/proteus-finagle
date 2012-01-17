@@ -98,7 +98,7 @@ class CompositeNode(indices: Seq[SearchbirdService]) extends SearchbirdService {
 }
 
 /**
- * RemoteIndex provides a ProteusServiceAbstraction interface over any number of hosts
+ * RemoteIndex provides a SearchbirdService interface over any number of hosts
  */
 
 class RemoteIndex(hosts: String) extends SearchbirdService {

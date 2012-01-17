@@ -9,6 +9,8 @@ class ProteusProject(info: ProjectInfo) extends StandardServiceProject(info)
   with Eclipsify
 {
 
+  override def usesMavenStyleBasePatternInPublishLocalConfiguration = false
+  
   val finagleVersion = "1.9.12"
   val finagleC = "com.twitter" % "finagle-core" % finagleVersion
   val finagleT = "com.twitter" % "finagle-thrift" % finagleVersion
@@ -24,12 +26,6 @@ class ProteusProject(info: ProjectInfo) extends StandardServiceProject(info)
   val slf4jApi = "org.slf4j" % "slf4j-api" % slf4jVersion withSources() intransitive()
   val slf4jBindings = "org.slf4j" % "slf4j-jdk14" % slf4jVersion withSources() intransitive()
 
-  //override def originalThriftNamespaces = Map("Proteus" -> "edu.ciir.proteus.thrift")
-  //override val scalaThriftTargetNamespace = "edu.ciir.proteus"
-
-  /**
-   * We can change this over to ProteusMain once we've written the class...
-   */
   override def mainClass = Some("edu.ciir.proteus.ProteusMain")
 
 }
