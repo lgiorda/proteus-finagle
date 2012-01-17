@@ -122,78 +122,86 @@ trait RandomEndPoint extends RandomDataGenerator {
   /** Core Functionality Methods ( MUST BE PROVIDED ) **/
 
   def runSearch(s: SearchRequest) = {
-    Future { new SearchResponse(genRandomResults(ProteusType.Organization, 10), Some("this is an error message")) }
+    val requested = s.params.get.numRequested.get.toInt
+    Future { new SearchResponse(scala.util.Random.shuffle(s.types.map(t => genRandomResults(t, requested)).flatten).slice(0, requested)) }
   }
 
   def runContainerTransform(accessID: AccessIdentifier,
     to_type: ProteusType,
     from_type: ProteusType,
     params: SearchParameters) = {
-    Future { new SearchResponse(genRandomResults(ProteusType.Organization, 10), Some("this is an error message")) }
+    Future { new SearchResponse(genRandomResults(to_type, params.numRequested.get.toInt)) }
   }
 
   def runContentsTransform(accessID: AccessIdentifier,
     to_type: ProteusType,
     from_type: ProteusType,
     params: SearchParameters) = {
-    Future { new SearchResponse(genRandomResults(ProteusType.Organization, 10), Some("this is an error message")) }
+    Future { new SearchResponse(genRandomResults(to_type, params.numRequested.get.toInt)) }
   }
 
   def runOverlapsTransform(accessID: AccessIdentifier,
     id_type: ProteusType,
     params: SearchParameters) = {
-    Future { new SearchResponse(genRandomResults(id_type, 10)) }
+    Future { new SearchResponse(genRandomResults(id_type, params.numRequested.get.toInt)) }
   }
 
   def runOccurAsObjTransform(id: AccessIdentifier,
     from_type: ProteusType,
     term: String,
     params: SearchParameters) = {
-    Future { new SearchResponse(genRandomResults(ProteusType.Page, 10), Some("this is an error message")) }
+    Future { new SearchResponse(genRandomResults(ProteusType.Page, params.numRequested.get.toInt), Some("this is an error message")) }
   }
 
   def runOccurAsSubjTransform(id: AccessIdentifier,
     from_type: ProteusType,
     term: String,
     params: SearchParameters) = {
-    Future { new SearchResponse(genRandomResults(ProteusType.Page, 10), Some("this is an error message")) }
+    Future { new SearchResponse(genRandomResults(ProteusType.Page, params.numRequested.get.toInt)) }
   }
 
   def runOccurHasObjTransform(id: AccessIdentifier,
     from_type: ProteusType,
     term: String,
     params: SearchParameters) = {
-    Future { new SearchResponse(genRandomResults(ProteusType.Page, 10)) }
+    Future { new SearchResponse(genRandomResults(ProteusType.Page, params.numRequested.get.toInt)) }
   }
 
   def runOccurHasSubjTransform(id: AccessIdentifier,
     from_type: ProteusType,
     term: String,
     params: SearchParameters) = {
-    Future { new SearchResponse(genRandomResults(ProteusType.Page, 10), Some("this is an error message")) }
+    Future { new SearchResponse(genRandomResults(ProteusType.Page, params.numRequested.get.toInt)) }
   }
 
   def runNearbyLocationsTransform(accessID: AccessIdentifier,
     radius: Int,
     params: SearchParameters) = {
-    Future { new SearchResponse(genRandomResults(ProteusType.Location, 10)) }
+    Future { new SearchResponse(genRandomResults(ProteusType.Location, params.numRequested.get.toInt)) }
   }
 
   def runDynamicTransform(accessID: AccessIdentifier,
     dtID: DynamicTransformID,
     params: SearchParameters) = {
-    Future { new SearchResponse(genRandomResults(ProteusType.Organization, 10)) }
+    Future { new SearchResponse(genRandomResults(ProteusType.Collection, params.numRequested.get.toInt)) }
   }
 
   def lookupCollection(accessID: AccessIdentifier) = {
     if (accessID.resourceId != getResourceKey)
       Future {
-        Collection(new AccessIdentifier(accessID.identifier,
-          Some(getResourceKey),
+        Collection(new AccessIdentifier(accessID.identifier, Some(getResourceKey),
           Some("error: lookup with mismatched resourceID")))
       }
     else
-      Future { Collection(accessID, Some("Collection: " + genKey()), Some(generateRandomSummary)) }
+      Future { Collection(new AccessIdentifier(accessID.identifier, Some(getResourceKey)),
+          Some("Title: Collection... " + genKey()),
+          Some(new ResultSummary("Summary... " + List.range(0, 10).map(_ => genKey()).mkString(" "), List(new TextRegion(0, scala.util.Random.nextInt(20))))),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(extLinks(util.Random.nextInt(extLinks.length))),
+          Some(genRandomDates),
+          Some(genRandomTermHist),
+          Some("en"), numPages = Some(scala.util.Random.nextInt(2000))) }
   }
 
   def lookupPage(accessID: AccessIdentifier) = {
@@ -226,46 +234,77 @@ trait RandomEndPoint extends RandomDataGenerator {
 
   def lookupPicture(accessID: AccessIdentifier): Future[Picture] = {
     if (accessID.resourceId != getResourceKey)
-      Future {
+      Future {wikiLinks
         new Picture(new AccessIdentifier(accessID.identifier,
           Some(getResourceKey),
           Some("error: lookup with mismatched resourceID")),
           creators = Some(List("Will", "Logan")))
       }
     else
-      Future { new Picture(accessID, Some("Picture: " + genKey()), Some(generateRandomSummary)) }
+      Future { new Picture(accessID, Some("Picture: " + genKey()), Some(generateRandomSummary),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(extLinks(util.Random.nextInt(extLinks.length)))) }
   }
   def lookupVideo(accessID: AccessIdentifier): Future[Video] = {
     if (accessID.resourceId != getResourceKey)
       return Future { new Video(new AccessIdentifier(accessID.identifier, Some(getResourceKey), Some("error: lookup with mismatched resourceID"))) }
     else
-      return Future { new Video(accessID, Some("Video: " + genKey()), Some(generateRandomSummary)) }
+      return Future { new Video(accessID, Some("Video: " + genKey()), Some(generateRandomSummary),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(extLinks(util.Random.nextInt(extLinks.length))),
+          length = Some(scala.util.Random.nextInt(10000))) }
   }
 
   def lookupAudio(accessID: AccessIdentifier): Future[Audio] = {
     if (accessID.resourceId != getResourceKey)
       return Future { new Audio(new AccessIdentifier(accessID.identifier, Some(getResourceKey), Some("error: lookup with mismatched resourceID"))) }
     else
-      return Future { new Audio(accessID, Some("Audio: " + genKey()), Some(generateRandomSummary)) }
+      return Future { new Audio(accessID, Some("Audio: " + genKey()), Some(generateRandomSummary),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(extLinks(util.Random.nextInt(extLinks.length))),
+          caption = Some("Audio Caption: " + genKey())) }
   }
 
   def lookupPerson(accessID: AccessIdentifier): Future[Person] = {
     if (accessID.resourceId != getResourceKey)
       return Future { new Person(new AccessIdentifier(accessID.identifier, Some(getResourceKey), Some("error: lookup with mismatched resourceID"))) }
     else
-      return Future { new Person(accessID, Some("Person: " + genKey()), Some(generateRandomSummary)) }
+      return Future { new Person(accessID, Some("Person: " + genKey()), Some(generateRandomSummary),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(genRandomDates),
+          Some(genRandomTermHist),
+          Some(genKey().capitalize + " " + genKey().capitalize),
+          wikiLink = Some(wikiLinks(util.Random.nextInt(wikiLinks.length))),
+          birthDate = Some(util.Random.nextLong), deathDate = Some(util.Random.nextLong)) }
   }
   def lookupLocation(accessID: AccessIdentifier): Future[Location] = {
     if (accessID.resourceId != getResourceKey)
       return Future { new Location(new AccessIdentifier(accessID.identifier, Some(getResourceKey), Some("error: lookup with mismatched resourceID"))) }
     else
-      return Future { new Location(accessID, Some("Location: " + genKey()), Some(generateRandomSummary)) }
+      return Future { new Location(accessID, Some("Location: " + genKey()), Some(generateRandomSummary),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(genRandomDates),
+          Some(genRandomTermHist),
+          Some(genKey().capitalize + " " + genKey().capitalize),
+          wikiLink = Some(wikiLinks(util.Random.nextInt(wikiLinks.length))),
+          longitude = Some((util.Random.nextDouble - 0.5) * 2.0 * 180.0), latitude = Some((util.Random.nextDouble - 0.5) * 2.0 * 90.0)) }
   }
+  
   def lookupOrganization(accessID: AccessIdentifier): Future[Organization] = {
     if (accessID.resourceId != getResourceKey)
       return Future { new Organization(new AccessIdentifier(accessID.identifier, Some(getResourceKey), Some("error: lookup with mismatched resourceID"))) }
     else
-      return Future { new Organization(accessID, Some("Organization: " + genKey()), Some(generateRandomSummary)) }
+      return Future { new Organization(accessID, Some("Organization: " + genKey()), Some(generateRandomSummary),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(genRandomDates),
+          Some(genRandomTermHist),
+          Some(genKey().capitalize + " " + genKey().capitalize)) }
   }
 
   def supportsDynTransform(dtID: DynamicTransformID): Future[Boolean] = Future { true }
