@@ -133,6 +133,7 @@ trait RandomEndPoint extends RandomDataGenerator {
 
   def runSearch(s: SearchRequest) = {
     val requested = s.params.get.numRequested.get.toInt
+<<<<<<< HEAD
     Future {
       new SearchResponse(scala.util.Random.shuffle(s.types.map(t =>
         genRandomResults(t, requested)).flatten).slice(0, requested))
@@ -224,16 +225,79 @@ trait RandomEndPoint extends RandomDataGenerator {
       new SearchResponse(genRandomResults(ProteusType.Collection,
         params.numRequested.get.toInt))
     }
+=======
+    Future { new SearchResponse(scala.util.Random.shuffle(s.types.map(t => genRandomResults(t, requested)).flatten).slice(0, requested)) }
+  }
+
+  def runContainerTransform(accessID: AccessIdentifier,
+    to_type: ProteusType,
+    from_type: ProteusType,
+    params: SearchParameters) = {
+    Future { new SearchResponse(genRandomResults(to_type, params.numRequested.get.toInt)) }
+  }
+
+  def runContentsTransform(accessID: AccessIdentifier,
+    to_type: ProteusType,
+    from_type: ProteusType,
+    params: SearchParameters) = {
+    Future { new SearchResponse(genRandomResults(to_type, params.numRequested.get.toInt)) }
+  }
+
+  def runOverlapsTransform(accessID: AccessIdentifier,
+    id_type: ProteusType,
+    params: SearchParameters) = {
+    Future { new SearchResponse(genRandomResults(id_type, params.numRequested.get.toInt)) }
+  }
+
+  def runOccurAsObjTransform(id: AccessIdentifier,
+    from_type: ProteusType,
+    term: String,
+    params: SearchParameters) = {
+    Future { new SearchResponse(genRandomResults(ProteusType.Page, params.numRequested.get.toInt), Some("this is an error message")) }
+  }
+
+  def runOccurAsSubjTransform(id: AccessIdentifier,
+    from_type: ProteusType,
+    term: String,
+    params: SearchParameters) = {
+    Future { new SearchResponse(genRandomResults(ProteusType.Page, params.numRequested.get.toInt)) }
+  }
+
+  def runOccurHasObjTransform(id: AccessIdentifier,
+    from_type: ProteusType,
+    term: String,
+    params: SearchParameters) = {
+    Future { new SearchResponse(genRandomResults(ProteusType.Page, params.numRequested.get.toInt)) }
+  }
+
+  def runOccurHasSubjTransform(id: AccessIdentifier,
+    from_type: ProteusType,
+    term: String,
+    params: SearchParameters) = {
+    Future { new SearchResponse(genRandomResults(ProteusType.Page, params.numRequested.get.toInt)) }
+  }
+
+  def runNearbyLocationsTransform(accessID: AccessIdentifier,
+    radius: Int,
+    params: SearchParameters) = {
+    Future { new SearchResponse(genRandomResults(ProteusType.Location, params.numRequested.get.toInt)) }
+  }
+
+  def runDynamicTransform(accessID: AccessIdentifier,
+    dtID: DynamicTransformID,
+    params: SearchParameters) = {
+    Future { new SearchResponse(genRandomResults(ProteusType.Collection, params.numRequested.get.toInt)) }
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
   }
 
   def lookupCollection(accessID: AccessIdentifier) = {
     if (accessID.resourceId != getResourceKey)
       Future {
-        Collection(new AccessIdentifier(accessID.identifier,
-          Some(getResourceKey),
+        Collection(new AccessIdentifier(accessID.identifier, Some(getResourceKey),
           Some("error: lookup with mismatched resourceID")))
       }
     else
+<<<<<<< HEAD
       Future {
         Collection(new AccessIdentifier(accessID.identifier,
           Some(getResourceKey)),
@@ -241,13 +305,22 @@ trait RandomEndPoint extends RandomDataGenerator {
           Some(new ResultSummary("Summary... " + List.range(0,
             10).map(_ => genKey()).mkString(" "), List(new TextRegion(0,
             scala.util.Random.nextInt(20))))),
+=======
+      Future { Collection(new AccessIdentifier(accessID.identifier, Some(getResourceKey)),
+          Some("Title: Collection... " + genKey()),
+          Some(new ResultSummary("Summary... " + List.range(0, 10).map(_ => genKey()).mkString(" "), List(new TextRegion(0, scala.util.Random.nextInt(20))))),
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
           Some(imgURLs(util.Random.nextInt(imgURLs.length))),
           Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
           Some(extLinks(util.Random.nextInt(extLinks.length))),
           Some(genRandomDates),
           Some(genRandomTermHist),
+<<<<<<< HEAD
           Some("en"), numPages = Some(scala.util.Random.nextInt(2000)))
       }
+=======
+          Some("en"), numPages = Some(scala.util.Random.nextInt(2000))) }
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
   }
 
   def lookupPage(accessID: AccessIdentifier) = {
@@ -280,14 +353,19 @@ trait RandomEndPoint extends RandomDataGenerator {
 
   def lookupPicture(accessID: AccessIdentifier): Future[Picture] = {
     if (accessID.resourceId != getResourceKey)
+<<<<<<< HEAD
       Future {
         wikiLinks
+=======
+      Future {wikiLinks
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
         new Picture(new AccessIdentifier(accessID.identifier,
           Some(getResourceKey),
           Some("error: lookup with mismatched resourceID")),
           creators = Some(List("Will", "Logan")))
       }
     else
+<<<<<<< HEAD
       Future {
         new Picture(accessID, Some("Picture: " + genKey()),
           Some(generateRandomSummary),
@@ -295,6 +373,12 @@ trait RandomEndPoint extends RandomDataGenerator {
           Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
           Some(extLinks(util.Random.nextInt(extLinks.length))))
       }
+=======
+      Future { new Picture(accessID, Some("Picture: " + genKey()), Some(generateRandomSummary),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(extLinks(util.Random.nextInt(extLinks.length)))) }
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
   }
   def lookupVideo(accessID: AccessIdentifier): Future[Video] = {
     if (accessID.resourceId != getResourceKey)
@@ -303,6 +387,7 @@ trait RandomEndPoint extends RandomDataGenerator {
           Some("error: lookup with mismatched resourceID")))
       }
     else
+<<<<<<< HEAD
       return Future {
         new Video(accessID, Some("Video: " + genKey()),
           Some(generateRandomSummary),
@@ -311,6 +396,13 @@ trait RandomEndPoint extends RandomDataGenerator {
           Some(extLinks(util.Random.nextInt(extLinks.length))),
           length = Some(scala.util.Random.nextInt(10000)))
       }
+=======
+      return Future { new Video(accessID, Some("Video: " + genKey()), Some(generateRandomSummary),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(extLinks(util.Random.nextInt(extLinks.length))),
+          length = Some(scala.util.Random.nextInt(10000))) }
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
   }
 
   def lookupAudio(accessID: AccessIdentifier): Future[Audio] = {
@@ -320,6 +412,7 @@ trait RandomEndPoint extends RandomDataGenerator {
           Some("error: lookup with mismatched resourceID")))
       }
     else
+<<<<<<< HEAD
       return Future {
         new Audio(accessID, Some("Audio: " + genKey()),
           Some(generateRandomSummary),
@@ -328,6 +421,13 @@ trait RandomEndPoint extends RandomDataGenerator {
           Some(extLinks(util.Random.nextInt(extLinks.length))),
           caption = Some("Audio Caption: " + genKey()))
       }
+=======
+      return Future { new Audio(accessID, Some("Audio: " + genKey()), Some(generateRandomSummary),
+          Some(imgURLs(util.Random.nextInt(imgURLs.length))),
+          Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
+          Some(extLinks(util.Random.nextInt(extLinks.length))),
+          caption = Some("Audio Caption: " + genKey())) }
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
   }
 
   def lookupPerson(accessID: AccessIdentifier): Future[Person] = {
@@ -337,18 +437,26 @@ trait RandomEndPoint extends RandomDataGenerator {
           Some("error: lookup with mismatched resourceID")))
       }
     else
+<<<<<<< HEAD
       return Future {
         new Person(accessID, Some("Person: " +
           genKey()), Some(generateRandomSummary),
+=======
+      return Future { new Person(accessID, Some("Person: " + genKey()), Some(generateRandomSummary),
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
           Some(imgURLs(util.Random.nextInt(imgURLs.length))),
           Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
           Some(genRandomDates),
           Some(genRandomTermHist),
           Some(genKey().capitalize + " " + genKey().capitalize),
           wikiLink = Some(wikiLinks(util.Random.nextInt(wikiLinks.length))),
+<<<<<<< HEAD
           birthDate = Some(util.Random.nextLong), deathDate =
             Some(util.Random.nextLong))
       }
+=======
+          birthDate = Some(util.Random.nextLong), deathDate = Some(util.Random.nextLong)) }
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
   }
   def lookupLocation(accessID: AccessIdentifier): Future[Location] = {
     if (accessID.resourceId != getResourceKey)
@@ -357,20 +465,30 @@ trait RandomEndPoint extends RandomDataGenerator {
           Some("error: lookup with mismatched resourceID")))
       }
     else
+<<<<<<< HEAD
       return Future {
         new Location(accessID, Some("Location: " +
           genKey()), Some(generateRandomSummary),
+=======
+      return Future { new Location(accessID, Some("Location: " + genKey()), Some(generateRandomSummary),
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
           Some(imgURLs(util.Random.nextInt(imgURLs.length))),
           Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
           Some(genRandomDates),
           Some(genRandomTermHist),
           Some(genKey().capitalize + " " + genKey().capitalize),
           wikiLink = Some(wikiLinks(util.Random.nextInt(wikiLinks.length))),
+<<<<<<< HEAD
           longitude = Some((util.Random.nextDouble - 0.5) * 2.0 *
             180.0), latitude = Some((util.Random.nextDouble - 0.5) * 2.0 * 90.0))
       }
   }
 
+=======
+          longitude = Some((util.Random.nextDouble - 0.5) * 2.0 * 180.0), latitude = Some((util.Random.nextDouble - 0.5) * 2.0 * 90.0)) }
+  }
+  
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
   def lookupOrganization(accessID: AccessIdentifier): Future[Organization] = {
     if (accessID.resourceId != getResourceKey)
       return Future {
@@ -378,15 +496,23 @@ trait RandomEndPoint extends RandomDataGenerator {
           Some("error: lookup with mismatched resourceID")))
       }
     else
+<<<<<<< HEAD
       return Future {
         new Organization(accessID, Some("Organization: "
           + genKey()), Some(generateRandomSummary),
+=======
+      return Future { new Organization(accessID, Some("Organization: " + genKey()), Some(generateRandomSummary),
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
           Some(imgURLs(util.Random.nextInt(imgURLs.length))),
           Some(thumbURLs(util.Random.nextInt(thumbURLs.length))),
           Some(genRandomDates),
           Some(genRandomTermHist),
+<<<<<<< HEAD
           Some(genKey().capitalize + " " + genKey().capitalize))
       }
+=======
+          Some(genKey().capitalize + " " + genKey().capitalize)) }
+>>>>>>> c3e05c2a5cf22d85009ffa1712138356f571fbad
   }
 
   def supportsDynTransform(dtID: DynamicTransformID): Future[Boolean] = Future { true }
